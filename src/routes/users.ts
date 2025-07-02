@@ -1,8 +1,11 @@
 import { Hono } from 'hono';
 import db from '../db/index.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 
 export const users = new Hono();
+
+users.use('*', authMiddleware);
 
 users.get('/', (c) => {
   const stmt = db.prepare('SELECT * FROM users')

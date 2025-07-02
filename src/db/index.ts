@@ -17,6 +17,15 @@ db.exec(`
     );
 `)
 
+const userEmail = "joshua025icloud@gmail.com";  // Replace with your email
+const adminEmail = "joshua025icloud@gmail.com";  // Replace with your admin email
+
+db.exec(`
+    UPDATE "users" 
+    SET "role" = 'admin' 
+    WHERE "email" = '${userEmail}' AND '${userEmail}' = '${adminEmail}';
+`);
+
 // Create the users user_totals if it doesn't exist
 db.exec(`
     CREATE TABLE IF NOT EXISTS "user_totals" (
@@ -101,5 +110,10 @@ for (const category of defaultCategories) {
   insertIfNotExists.run(category.name, category.icon, category.name)
 }
 
+// db.exec(`DELETE FROM expenses;`);
+
+// // Dummy user and category IDs (you should ensure these exist)
+// const userId = 3;
+// const categoryId = 1;
 
 export default db
