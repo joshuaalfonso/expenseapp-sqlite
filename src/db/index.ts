@@ -92,7 +92,7 @@ db.exec(`
         "budget_icon"	TEXT NOT NULL,
         "amount"	INTEGER NOT NULL DEFAULT 0,
         "is_del"	INTEGER DEFAULT 0,
-        "created_at"	TEXT DEFAULT (datetime('now')),
+        "date_created"	TEXT DEFAULT (datetime('now')),
         PRIMARY KEY("id" AUTOINCREMENT),
         FOREIGN KEY("user_id") REFERENCES "users"("id")
     );
