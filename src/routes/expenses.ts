@@ -37,8 +37,9 @@ expenses.get('/', (c) => {
 expenses.get('/page/:page/sortBy/:sortByValue', async (c) => {
 
     const page = parseInt(c.req.param('page') || '1');
-
+    
     const sortBy = c.req.param('sortByValue')?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const budgetId = parseInt(c.req.param('budgetId') || '0');
 
     const { user_id } = c.get('jwtPayload');
 
@@ -49,6 +50,7 @@ expenses.get('/page/:page/sortBy/:sortByValue', async (c) => {
         const rows = db.prepare(`
         SELECT 
             e.id,
+            e.budget_id,
             e.date,
             c.id AS category_id,
             c.category_name,
@@ -66,11 +68,11 @@ expenses.get('/page/:page/sortBy/:sortByValue', async (c) => {
         LEFT JOIN
             users AS u ON e.user_id = u.id
         WHERE 
-            e.user_id = ?
+            e.user_id = ? AND e.budget_id = ?
         ORDER BY 
             e.date ${sortBy}
         LIMIT ? OFFSET ?
-        `).all(user_id, limit, offset);
+        `).all(user_id, budgetId, limit, offset);
 
         const totalRow: any = db.prepare(
             `
@@ -79,9 +81,9 @@ expenses.get('/page/:page/sortBy/:sortByValue', async (c) => {
                 FROM 
                     expenses 
                 WHERE 
-                    user_id = ?
+                    user_id = ? AND budget_id = ?
             `
-        ).get(user_id);
+        ).get(user_id, budgetId);
 
         const total = totalRow.total;
 
@@ -157,13 +159,13 @@ expenses.put('/:id', async (c) => {
 
     try {
         const getExpenseStmt = db.prepare(
-        `SELECT amount, date FROM expenses WHERE id = ? AND user_id = ?`
+            `SELECT amount, date FROM expenses WHERE id = ? AND user_id = ?`
         );
 
         const existing: any = getExpenseStmt.get(id, user_id);
 
         if (!existing) {
-        return c.json({ success: false, message: 'Expense not found' }, 404);
+            return c.json({ success: false, message: 'Expense not found' }, 404);
         }
 
         const { amount: oldAmount, date: oldDate } = existing;

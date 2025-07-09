@@ -7,6 +7,7 @@ import { cors } from 'hono/cors'
 import { categories } from './routes/categories.js'
 import { dashboard } from './routes/dashboard.js'
 import { expenses } from './routes/expenses.js'
+import { budgets } from './routes/budgets.js'
 
 const app = new Hono();
 app.use('*', cors());
@@ -24,6 +25,8 @@ app.route('/dashboard', dashboard);
 app.route('/categories', categories);
 
 app.route('/expenses', expenses);
+
+app.route('/budgets', budgets);
 
 
 serve({

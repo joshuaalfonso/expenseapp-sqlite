@@ -10,7 +10,7 @@ db.exec(`
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
         "google_id" TEXT NOT NULL,
         "email" TEXT NOT NULL,
-        "name" TEXT NOT NULL,
+        "name" TEXT NOT NULL, 
         "picture" TEXT NOT NULL,
         "role" TEXT NOT NULL DEFAULT 'user',
         "date_created" TEXT NOT NULL DEFAULT (datetime('now'))
@@ -29,8 +29,8 @@ db.exec(`
 // Create the users user_totals if it doesn't exist
 db.exec(`
     CREATE TABLE IF NOT EXISTS "user_totals" (
-        "id"	INTEGER,
-        "user_id"	INTEGER NOT NULL,
+        "id" INTEGER ,
+        "user_id" INTEGER NOT NULL,
         "total_expense"	INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY("id" AUTOINCREMENT),
         UNIQUE("user_id"),
@@ -68,18 +68,34 @@ db.exec(`
 
 // Create the expenses table if it doesn't exist
 db.exec(`
-    CREATE TABLE IF NOT EXISTS "expenses" (
+    CREATE TABLE IF NOT EXISTS  "expenses" (
+	"id"	INTEGER,
+	"budget_id"	INTEGER DEFAULT 0,
+	"user_id"	INTEGER NOT NULL,
+	"category_id"	INTEGER NOT NULL,
+	"amount"	INTEGER NOT NULL,
+	"description"	TEXT,
+	"date"	TEXT NOT NULL,
+	"date_created"	TEXT NOT NULL DEFAULT (datetime('now')),
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("category_id") REFERENCES "categories"("id"),
+	FOREIGN KEY("user_id") REFERENCES "users"("id")
+);
+`)
+
+// Create budget table if it doesn't exist
+db.exec(`
+    CREATE TABLE IF NOT EXISTS "budgets" ( 
         "id"	INTEGER,
         "user_id"	INTEGER NOT NULL,
-        "category_id"	INTEGER NOT NULL,
-        "amount"	INTEGER NOT NULL,
-        "description"	TEXT,
-        "date"	TEXT NOT NULL,
-        "date_created"	TEXT NOT NULL DEFAULT (datetime('now')),
+        "budget_name"	TEXT NOT NULL,
+        "budget_icon"	TEXT NOT NULL,
+        "amount"	INTEGER NOT NULL DEFAULT 0,
+        "is_del"	INTEGER DEFAULT 0,
+        "created_at"	TEXT DEFAULT (datetime('now')),
         PRIMARY KEY("id" AUTOINCREMENT),
-        FOREIGN KEY("category_id") REFERENCES "categories"("id"),
         FOREIGN KEY("user_id") REFERENCES "users"("id")
-    );    
+    );
 `)
 
 
@@ -111,6 +127,8 @@ for (const category of defaultCategories) {
 }
 
 // db.exec(`DELETE FROM expenses;`);
+// db.exec(`DELETE FROM monthly_totals;`);
+// db.exec(`DELETE FROM user_totals;`);
 
 // // Dummy user and category IDs (you should ensure these exist)
 // const userId = 3;
