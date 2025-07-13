@@ -85,4 +85,5 @@ categories.delete('/:categories_id', async (c) => {
     console.error('Delete error:', error);
     return c.json({ success: false, message: 'Failed to delete category.' }, 500);
   }
+  
 });

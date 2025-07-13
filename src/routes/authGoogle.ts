@@ -48,7 +48,7 @@ authGoogle.post('/', async (c) => {
     if (!existingUser) {
         // Insert user
         const insertUserStmt = db.prepare(
-        `INSERT INTO users (email, name, picture, google_id) VALUES (?, ?, ?, ?)`
+            `INSERT INTO users (email, name, picture, google_id) VALUES (?, ?, ?, ?)`
         );
         const result = insertUserStmt.run(email, name, picture, google_Id);
 

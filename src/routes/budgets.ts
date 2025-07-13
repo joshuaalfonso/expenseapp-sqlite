@@ -138,8 +138,13 @@ budgets.delete('/:id', async (c) => {
   const budget_id = c.req.param('id');
 
   try {
+
+    db.prepare(
+      `DELETE FROM expenses WHERE budget_id = ?`
+    ).run(budget_id);
+
     const result = db.prepare(
-      `UPDATE budgets SET is_del = 1 WHERE id = ?`
+      `DELETE FROM budgets WHERE id = ?`
     ).run(budget_id);
 
     if (result.changes === 0) {
