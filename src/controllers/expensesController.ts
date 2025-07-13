@@ -9,10 +9,10 @@ import {
     InsertExpense,
     UpdateExpense,
     UpsertMonthlyTotal
-} from "../model/expensesModel.js"
+} from "../models/expensesModel.js"
 import db from "../db/index.js";
-import { DeleteZeroMonthly, SubtractOldMonthly, UpsertMonthly } from "../model/monthlyTotalsModel.js";
-import { AddUserTotal, SubtractAddOldUserTotals, SubtractUserTotal } from "../model/userTotalsModel.js";
+import { DeleteZeroMonthly, SubtractOldMonthly, UpsertMonthly } from "../models/monthlyTotalsModel.js";
+import { AddUserTotal, SubtractAddOldUserTotals, SubtractUserTotal } from "../models/userTotalsModel.js";
 
 
 
@@ -149,7 +149,7 @@ export const PutExpense = async (c:Context) => {
         console.error('Update error:', error);
         return c.json({ success: false, error: 'Failed to update expense.' }, 500);
     }
-    
+
 }
 
 

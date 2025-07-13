@@ -18,7 +18,7 @@ export const DeleteZeroMonthly = () => {
             monthly_totals 
         WHERE 
             user_id = ? AND year = ? AND month = ? AND total <= 0
-    `);
+    `); 
 }
 
 export const UpsertMonthly = () => {

@@ -1,0 +1,104 @@
+import type { Context } from "hono";
+import type { JWTPayload } from "hono/utils/jwt/types";
+import { AllCategoriesPerUser, DeleteCategoryById, InsertCategory, UpdateCategory } from "../models/categoriesModel.js";
+
+
+
+
+export const GetAllCategories = async (c: Context) => {
+
+    const { user_id } = c.get('jwtPayload');
+    const rows = AllCategoriesPerUser(user_id);
+    return c.json(rows);
+
+}
+
+
+export const PostCategory = async (c: Context) => {
+
+    const body = await c.req.json();
+    const { id, category_name, category_icon, is_default } = body;
+    const { user_id } = c.get('jwtPayload');
+
+    try {
+        const result = InsertCategory(id, user_id, category_name, category_icon, is_default);
+        return c.json({ success: true, result });
+    }
+
+    catch (error) {
+        console.error(error);
+        return c.json({ success: false, error: 'Failed to insert category.' }, 500);
+    }
+
+}
+
+export const PutCategory = async (c: Context) => {
+
+    const id = c.req.param('id');
+    const body = await c.req.json();
+    const { category_name, category_icon, is_default } = body;
+
+    try {
+
+        const result = UpdateCategory(category_name, category_icon, is_default, +id);
+
+        if (result.changes === 0) {
+            return c.json({ success: false, error: 'Category not found.' }, 404);
+        }
+
+        return c.json({ success: true, result });
+    }
+
+    catch (error) {
+        console.error('Update error:', error);
+        return c.json({ success: false, error: 'Failed to update category.' }, 500);
+    }
+
+}
+
+
+export const DeleteCategory = async (c: Context) => {
+
+    const id = c.req.param('categories_id');
+
+    try {
+
+        const result = DeleteCategoryById(+id);
+
+        if (result.changes === 0) {
+            return c.json({ success: false, message: 'No category found with that ID.' }, 404);
+        }
+        
+        return c.json({ success: true, result });
+
+    }
+
+    catch (error) {
+        console.error('Delete error:', error);
+        return c.json({ success: false, message: 'Failed to delete category.' }, 500);
+    }
+
+}
+
+// categories.delete('/:categories_id', async (c) => {
+//   const id = c.req.param('categories_id');
+
+//   try {
+//     const result = db.prepare(
+//       `UPDATE categories SET is_del = 1 WHERE id = ?`
+//     ).run(id);
+
+//     if (result.changes === 0) {
+//       return c.json({ success: false, message: 'No category found with that ID.' }, 404);
+//     }
+
+//     return c.json({ success: true, result });
+//   } catch (error) {
+//     console.error('Delete error:', error);
+//     return c.json({ success: false, message: 'Failed to delete category.' }, 500);
+//   }
+  
+// });
+
+
+
