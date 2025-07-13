@@ -1,15 +1,32 @@
-import { Hono } from "hono";
-import { authMiddleware } from "../middleware/auth.js";
-import db from "../db/index.js";
-import { GetSummaryReport } from "../controllers/dashboardController.js";
+import type { Context } from "hono";
+import { CurrentMonthExpense, CurrentYearAverageExpense, CurrentYearMonthsExpense, GetTotalExpense, TopCategories } from "../models/dashboardModel.js";
 
 
-export const dashboard = new Hono();
+export const GetSummaryReport = async (c: Context) => {
 
-dashboard.use('*', authMiddleware);
+    const { user_id } = c.get('jwtPayload') as { user_id: number };
+    const yearNow = new Date().getFullYear();
 
+    const userTotalExpense = GetTotalExpense(user_id);
 
-dashboard.get('summary', GetSummaryReport);
+    const currentMonthExpense = CurrentMonthExpense(user_id);
+
+    const topCategories = TopCategories(user_id);
+
+    const currentYearMonthsExpense = CurrentYearMonthsExpense(user_id, yearNow);
+
+    const currentYearAverageExpense = CurrentYearAverageExpense(user_id, yearNow);
+
+    return c.json({
+        totalExpense: userTotalExpense?.total_expense ?? 0,
+        monthExpense: currentMonthExpense?.month_expense ?? 0,
+        topCategories: topCategories,
+        monthsExpense: currentYearMonthsExpense,
+        averagePerMonth: currentYearAverageExpense?.average_monthly ?? 0,
+    });
+
+}
+
 
 // dashboard.get('/summary', async (c) => {
 //   const { user_id } = c.get('jwtPayload') as { user_id: number };
