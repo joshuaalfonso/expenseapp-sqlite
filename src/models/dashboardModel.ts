@@ -89,19 +89,3 @@ export const TopCategories = (user_id: number) => {
 
 }
 
-//   const categoryRows = db.prepare(`
-//     SELECT 
-//       category_id, categories.category_name, SUM(amount) AS total
-//     FROM 
-//       expenses
-//     LEFT JOIN 
-//       categories ON expenses.category_id = categories.id
-//     WHERE 
-//       expenses.user_id = ?
-//       AND strftime('%Y', date) = strftime('%Y', CURRENT_DATE)
-//     GROUP BY 
-//       category_id
-//     ORDER BY 
-//       total DESC
-//     LIMIT 5
-//   `).all(user_id);

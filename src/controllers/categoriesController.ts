@@ -80,25 +80,7 @@ export const DeleteCategory = async (c: Context) => {
 
 }
 
-// categories.delete('/:categories_id', async (c) => {
-//   const id = c.req.param('categories_id');
 
-//   try {
-//     const result = db.prepare(
-//       `UPDATE categories SET is_del = 1 WHERE id = ?`
-//     ).run(id);
-
-//     if (result.changes === 0) {
-//       return c.json({ success: false, message: 'No category found with that ID.' }, 404);
-//     }
-
-//     return c.json({ success: true, result });
-//   } catch (error) {
-//     console.error('Delete error:', error);
-//     return c.json({ success: false, message: 'Failed to delete category.' }, 500);
-//   }
-  
-// });
 
 
 

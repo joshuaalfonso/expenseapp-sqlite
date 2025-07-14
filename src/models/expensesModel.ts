@@ -57,6 +57,29 @@ export const AllPaginatedExpensesPerUser = (
 }
 
 
+export const AllExpensesByBudget = () => {
+    return db.prepare(`
+        SELECT 
+            e.id,
+            e.budget_id,
+            e.category_id,
+            e.date,
+            c.category_icon,
+            c.category_name,
+            e.description,
+            e.amount,
+            e.date_created
+        FROM 
+            expenses e
+        LEFT JOIN
+            categories c 
+        ON
+            e.category_id = c.id
+        WHERE budget_id = ? 
+        `
+    )
+}
+
 export const ExpenseTotalCountPerUser = (user_id: number) => {
     return db.prepare(
             `

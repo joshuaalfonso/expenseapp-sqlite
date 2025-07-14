@@ -162,7 +162,7 @@ export const DeleteExpense = async (c: Context) => {
 
         const getExpense = CheckExpense();
 
-        const expense: any = getExpense.get(id, user_id);
+        const expense: any = await getExpense.get(id, user_id);
 
         if (!expense) {
             return c.json({ success: false, message: 'Expense not found' }, 404);
@@ -176,7 +176,7 @@ export const DeleteExpense = async (c: Context) => {
 
         const deleteEmptyMonthly = DeleteEmptyMonthly();
 
-        const deleteExpense = DeleteExpenseById();
+        const deleteExpenseById  = DeleteExpenseById();
 
         const updateUserTotal = SubtractUserTotal();
 
@@ -184,7 +184,7 @@ export const DeleteExpense = async (c: Context) => {
             updateMonthly.run(amount, user_id, year, month);
             deleteEmptyMonthly.run(user_id, year, month);
 
-            const result = deleteExpense.run(id);
+            const result = deleteExpenseById.run(id);
             
             if (result.changes === 0) {
                 throw new Error('Expense not found during delete');
