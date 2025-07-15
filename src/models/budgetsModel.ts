@@ -12,7 +12,8 @@ export const AllBudgetsPerUser = () => {
             COUNT(e.id) AS total_items,
             IFNULL(SUM(e.amount), 0) AS total_expense_amount,
             b.date_created
-            FROM budgets b
+        FROM 
+            budgets b
         LEFT JOIN 
             expenses e 
         ON 
@@ -29,15 +30,20 @@ export const AllBudgetsPerUser = () => {
 export const BudgetDetails = () => {
     return db.prepare(`
         SELECT 
-            id,
-            budget_name,
-            budget_icon,
-            amount AS budget_amount,
-            date_created
+            b.id,
+            b.budget_name,
+            b.budget_icon,
+            b.amount AS budget_amount,
+            IFNULL(SUM(e.amount), 0) AS total_expense_amount,
+            b.date_created
         FROM 
-            budgets
+            budgets b
+        LEFT JOIN
+            expenses e
+        ON 
+            e.budget_id = b.id
         WHERE 
-            id = ? AND is_del = 0
+            b.id = ? AND b.is_del = 0
     `)
 }
 
