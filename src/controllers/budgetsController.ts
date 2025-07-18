@@ -94,9 +94,9 @@ export const DeleteBudget = async (c: Context) => {
 
         const expenses: any[] = getExpensesByBudget.all(user_id, budgetId);
 
-        if (expenses.length === 0) {
-            return c.json({ success: false, message: 'No expenses found for this budget.' }, 404);
-        }
+        // if (expenses.length === 0) {
+        //     return c.json({ success: false, message: 'No expenses found for this budget.' }, 404);
+        // }
 
         const updateMonthly = SubtractOldMonthly();
         const deleteEmptyMonthly = DeleteEmptyMonthly();

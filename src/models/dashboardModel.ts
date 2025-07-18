@@ -57,15 +57,25 @@ export const CurrentYearMonthsExpense = (user_id: number, yearNow: number) => {
 }
 
 
-export const CurrentYearAverageExpense = (user_id: number, yearNow:number) => {
+// export const CurrentYearAverageExpense = (user_id: number, yearNow:number) => {
+//     return db.prepare(`
+//         SELECT 
+//             AVG(total) AS average_monthly
+//         FROM 
+//             monthly_totals
+//         WHERE 
+//             user_id = ? AND year = ?
+//     `).get(user_id, yearNow) as { average_monthly: number } | undefined;
+// }
+export const CurrentYearAverageExpense = (user_id: number) => {
     return db.prepare(`
-        SELECT 
-            AVG(total) AS average_monthly
-        FROM 
-            monthly_totals
-        WHERE 
-            user_id = ? AND year = ?
-    `).get(user_id, yearNow) as { average_monthly: number } | undefined;
+        SELECT
+        COALESCE((
+            SELECT AVG(total)
+            FROM monthly_totals
+            WHERE user_id = ?
+        ), 0) AS average_monthly;
+    `).get(user_id) as { average_monthly: number } | undefined;
 }
 
 export const TopCategories = (user_id: number) => {
