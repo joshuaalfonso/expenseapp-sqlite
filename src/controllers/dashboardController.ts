@@ -15,7 +15,7 @@ export const GetSummaryReport = async (c: Context) => {
 
     const currentYearMonthsExpense = CurrentYearMonthsExpense(user_id, yearNow);
 
-    const currentYearAverageExpense = CurrentYearAverageExpense(user_id, yearNow);
+    const currentYearAverageExpense = CurrentYearAverageExpense(user_id);
 
     return c.json({
         totalExpense: userTotalExpense?.total_expense ?? 0,
