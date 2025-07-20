@@ -1,15 +1,44 @@
 import type { Context } from "hono";
 import type { JWTPayload } from "hono/utils/jwt/types";
-import { AllCategoriesPerUser, DeleteCategoryById, InsertCategory, UpdateCategory } from "../models/categoriesModel.js";
+import { AllCategoriesPerUser, CategoriesTotalCountPerUser, DeleteCategoryById, InsertCategory, PaginatedCategoriesPerUser, UpdateCategory } from "../models/categoriesModel.js";
 
 
 
-
+const PAGE_LIMIT = 10;
 export const GetAllCategories = async (c: Context) => {
 
     const { user_id } = c.get('jwtPayload');
+
     const rows = AllCategoriesPerUser(user_id);
     return c.json(rows);
+
+}
+
+export const GetPaginatedCategories = async(c: Context) => {
+
+    const { user_id } = c.get('jwtPayload');
+    const page = parseInt(c.req.param('page') || '1');
+    const offset = (page - 1) * PAGE_LIMIT;
+
+    try {
+
+        const rows = PaginatedCategoriesPerUser().all(user_id, PAGE_LIMIT, offset);
+
+        const {total}: any =  CategoriesTotalCountPerUser().get(user_id);
+
+        return c.json({
+            data: rows,
+            currentPage: page,
+            perPage: PAGE_LIMIT,
+            total,
+            totalPages: Math.ceil(total / PAGE_LIMIT),
+        });
+    }
+
+    catch (error) {
+        console.error(error);
+        return c.json({ message: 'Failed to fetch data' }, 500);
+    }
 
 }
 
@@ -17,11 +46,11 @@ export const GetAllCategories = async (c: Context) => {
 export const PostCategory = async (c: Context) => {
 
     const body = await c.req.json();
-    const { id, category_name, category_icon, is_default } = body;
+    const { id, category_name, category_icon, description, is_default } = body;
     const { user_id } = c.get('jwtPayload');
 
     try {
-        const result = InsertCategory(id, user_id, category_name, category_icon, is_default);
+        const result = InsertCategory(id, user_id, category_name, category_icon, description, is_default);
         return c.json({ success: true, result });
     }
 
@@ -36,11 +65,11 @@ export const PutCategory = async (c: Context) => {
 
     const id = c.req.param('id');
     const body = await c.req.json();
-    const { category_name, category_icon, is_default } = body;
+    const { category_name, category_icon, description, is_default } = body;
 
     try {
 
-        const result = UpdateCategory(category_name, category_icon, is_default, +id);
+        const result = UpdateCategory(category_name, category_icon, description, is_default, +id);
 
         if (result.changes === 0) {
             return c.json({ success: false, error: 'Category not found.' }, 404);

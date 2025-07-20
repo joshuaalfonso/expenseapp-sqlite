@@ -13,6 +13,7 @@ import {
 import db from "../db/index.js";
 import { DeleteZeroMonthly, SubtractOldMonthly, UpsertMonthly } from "../models/monthlyTotalsModel.js";
 import { AddUserTotal, SubtractAddOldUserTotals, SubtractUserTotal } from "../models/userTotalsModel.js";
+import { DeleteZeroCategory, SubtractOldCategory, UpsertCategory } from "../models/categoryTotalsModel.js";
 
 
 
@@ -66,6 +67,7 @@ export const PostExpense = async (c: Context) => {
 
     const year = new Date(date).getFullYear();
     const month = new Date(date).getMonth() + 1;
+    const currentDateTime = new Date().toLocaleString();
 
     try {
 
@@ -75,10 +77,14 @@ export const PostExpense = async (c: Context) => {
 
         const upsertMonthlyTotal = UpsertMonthlyTotal();
 
+        const upsertCategoryTotal = UpsertCategory(); 
+
+
         const transaction = db.transaction(() => {
             insertExpense.run(id, date, budget_id, category_id, amount, description, user_id);
             updateUserTotal.run(amount, user_id);
             upsertMonthlyTotal.run(user_id, year, month, amount);
+            upsertCategoryTotal.run(user_id, category_id, amount, currentDateTime)
         });
 
         transaction();
@@ -108,6 +114,8 @@ export const PutExpense = async (c:Context) => {
         description: newDescription
     } = body;
 
+    const currentDateTime = new Date().toLocaleString();
+
     try {
 
         const getExpense = CheckExpense();
@@ -118,25 +126,38 @@ export const PutExpense = async (c:Context) => {
             return c.json({ success: false, message: 'Expense not found' }, 404);
         }
 
-        const { amount: oldAmount, date: oldDate } = existing;
+        const { category_id: oldCategoryId, amount: oldAmount, date: oldDate } = existing;
 
         const oldYear = new Date(oldDate).getFullYear();
         const oldMonth = new Date(oldDate).getMonth() + 1;
         const newYear = new Date(newDate).getFullYear();
         const newMonth = new Date(newDate).getMonth() + 1;
 
-        const updateExpense = UpdateExpense();
         const subtractOldMonthly = SubtractOldMonthly();
         const deleteZeroMonthly = DeleteZeroMonthly();
         const upsertMonthly = UpsertMonthly();
+
+        const subtractOldCategory = SubtractOldCategory();
+        const deleteZeroCategory = DeleteZeroCategory();
+        const upsertCategory = UpsertCategory();
+
         const subractAddUserTotals = SubtractAddOldUserTotals();
 
+        const updateExpense = UpdateExpense();
+
         const transaction = db.transaction(() => {
+
             subtractOldMonthly.run(oldAmount, user_id, oldYear, oldMonth);
             deleteZeroMonthly.run(user_id, oldYear, oldMonth);
             upsertMonthly.run(user_id, newYear, newMonth, newAmount);
-            updateExpense.run(newDate, newCategoryId, newAmount, newDescription, id);
+
+            subtractOldCategory.run(oldAmount, user_id, oldCategoryId);
+            deleteZeroCategory.run(user_id, oldCategoryId);
+            upsertCategory.run(user_id, newCategoryId, newAmount, currentDateTime)
+
             subractAddUserTotals.run(oldAmount, newAmount, user_id);
+
+            updateExpense.run(newDate, newCategoryId, newAmount, newDescription, id);
         });
 
         transaction();
@@ -168,21 +189,27 @@ export const DeleteExpense = async (c: Context) => {
             return c.json({ success: false, message: 'Expense not found' }, 404);
         }
 
-        const { date } = expense;
+        const { date, category_id: OldCategoryId } = expense;
         const year = new Date(date).getFullYear();
         const month = new Date(date).getMonth() + 1;
 
         const updateMonthly = SubtractOldMonthly();
-
         const deleteEmptyMonthly = DeleteEmptyMonthly();
+
+        const subtractOldCategory = SubtractOldCategory();
+        const deleteZeroCategory = DeleteZeroCategory();
 
         const deleteExpenseById  = DeleteExpenseById();
 
         const updateUserTotal = SubtractUserTotal();
 
         const transaction = db.transaction(() => {
+
             updateMonthly.run(amount, user_id, year, month);
             deleteEmptyMonthly.run(user_id, year, month);
+
+            subtractOldCategory.run(amount, user_id, OldCategoryId);
+            deleteZeroCategory.run(user_id, OldCategoryId);
 
             const result = deleteExpenseById.run(id);
             
@@ -191,6 +218,7 @@ export const DeleteExpense = async (c: Context) => {
             }
 
             updateUserTotal.run(amount, user_id);
+            
         });
 
         transaction();

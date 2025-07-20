@@ -51,7 +51,7 @@ export const AllPaginatedExpensesPerUser = (
         WHERE 
             e.user_id = ? 
         ORDER BY 
-            e.date ${sortBy}
+            e.date_created ${sortBy}
         LIMIT ? OFFSET ?
     `).all(user_id, limit, offset);
 }
@@ -118,7 +118,7 @@ export const CheckExpense = () => {
     return db.prepare(
         `
             SELECT 
-                amount, date 
+                id, category_id, amount, date 
             FROM 
                 expenses 
             WHERE 
