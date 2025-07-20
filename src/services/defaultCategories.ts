@@ -80,7 +80,7 @@ export const defaultCategories = [
     },
     {
         name: 'Miscellaneous',
-        icon: '💸',
+        icon: '❔',
         description: 'expenses that dont fit into specific categories.'
     } 
 ] 
