@@ -22,7 +22,7 @@ export const GetPaginatedCategories = async(c: Context) => {
 
     try {
 
-        const rows = PaginatedCategoriesPerUser().all(user_id, PAGE_LIMIT, offset);
+        const rows = PaginatedCategoriesPerUser().all(user_id, user_id, PAGE_LIMIT, offset);
 
         const {total}: any =  CategoriesTotalCountPerUser().get(user_id);
 

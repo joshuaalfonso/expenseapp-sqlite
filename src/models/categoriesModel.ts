@@ -22,6 +22,8 @@ export const AllCategoriesPerUser = (user_id: number) => {
             c.id = ct.category_id
         WHERE 
             (c.user_id = ? AND c.is_del = ?) OR (c.is_default = ?)
+        ORDER BY
+            c.category_name ASC
     `).all(user_id, 0, 1);
 }
 
@@ -42,14 +44,18 @@ export const PaginatedCategoriesPerUser = () => {
         LEFT JOIN
             category_totals ct
         ON
-            c.id = ct.category_id
+            c.id = ct.category_id AND ct.user_id = ?
         WHERE 
-            (c.user_id = ? AND c.is_del = 0) OR (c.is_default = 1)
+            (c.user_id = ? AND c.is_del = 0)
+            OR (c.is_default = 1)
         ORDER BY 
             c.category_name ASC
         LIMIT ? OFFSET ?    
     `)
 }
+
+//  (c.user_id = ? AND c.is_del = 0)
+//             OR (c.is_default = 1)
 
 export const CategoriesTotalCountPerUser = () => {
     return db.prepare(
