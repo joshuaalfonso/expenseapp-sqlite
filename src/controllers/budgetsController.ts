@@ -5,6 +5,7 @@ import { SubtractOldMonthly } from "../models/monthlyTotalsModel.js";
 import { AllExpensesByBudget, DeleteEmptyMonthly, DeleteExpenseById } from "../models/expensesModel.js";
 import { SubtractUserTotal } from "../models/userTotalsModel.js";
 import type { JWTPayload } from "jose";
+import { DeleteZeroCategory, SubtractOldCategory } from "../models/categoryTotalsModel.js";
 
 
 
@@ -102,17 +103,21 @@ export const DeleteBudget = async (c: Context) => {
         const deleteEmptyMonthly = DeleteEmptyMonthly();
         const deleteExpenseById = DeleteExpenseById();
         const updateUserTotal = SubtractUserTotal();
+        const subtractOldCategory = SubtractOldCategory();
+        const deleteZeroCategory = DeleteZeroCategory();
         const deleteBudget = DeleteBudgetById(); // deletes the budget row
 
         const transaction = db.transaction(() => {
             for (const expense of expenses) {
-                const { id, amount, date } = expense;
+                const { id, amount, date, category_id } = expense;
                 const expenseDate = new Date(date);
                 const year = expenseDate.getFullYear();
                 const month = expenseDate.getMonth() + 1;
 
                 updateMonthly.run(amount, user_id, year, month);
                 deleteEmptyMonthly.run(user_id, year, month);
+                subtractOldCategory.run(amount, user_id, category_id);
+                deleteZeroCategory.run(user_id, category_id);
 
                 const result = deleteExpenseById.run(id);
                 if (result.changes === 0) {
